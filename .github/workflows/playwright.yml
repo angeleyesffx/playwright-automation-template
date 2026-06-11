@@ -1,0 +1,99 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: "Test tags to run (e.g. @smoke)"
+        required: false
+        default: ""
+
+jobs:
+  test-api:
+    name: API Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: |
+          GREP="${{ github.event.inputs.tags }}"
+          if [ -n "$GREP" ]; then
+            npx playwright test --project=api --grep="$GREP"
+          else
+            npx playwright test --project=api
+          fi
+        env:
+          MARVEL_TOKEN: ${{ secrets.MARVEL_TOKEN }}
+
+      - name: Upload API report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-api
+          path: |
+            playwright-report/
+            html-report/
+            test-results/junit.xml
+          retention-days: 7
+
+  test-ui:
+    name: UI Tests (Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run UI tests
+        run: |
+          GREP="${{ github.event.inputs.tags }}"
+          if [ -n "$GREP" ]; then
+            npx playwright test --project=chromium --grep="$GREP"
+          else
+            npx playwright test --project=chromium
+          fi
+        env:
+          APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+          APP_EMAIL: ${{ secrets.APP_EMAIL }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+
+      - name: Upload UI report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-ui
+          path: |
+            playwright-report/
+            html-report/
+            test-results/junit.xml
+          retention-days: 7

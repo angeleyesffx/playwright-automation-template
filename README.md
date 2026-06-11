@@ -118,21 +118,33 @@ To implement a login flow, fill in the `TODO` in [tests/auth/auth.setup.ts](test
 
 ## CI Integration
 
-The template reads standard CI variables:
+The workflow lives at [.github/workflows/playwright.yml](.github/workflows/playwright.yml).
 
-- `CI=true` — disables emoji formatting in logs
-- `BUILD_ID` / `GITHUB_RUN_ID` — build identifier
-- `BUILD_NUMBER` / `GITHUB_RUN_NUMBER` — sequential build number
-- `EMAIL_RECIPIENTS` — comma-separated list for report notifications
+**Triggers:** push to `main`, pull requests to `main`, and manual dispatch (with optional tag filter).
 
-GitHub Actions example:
+**Jobs run in parallel:**
 
-```yaml
-- name: Run Playwright tests
-  run: npx playwright test
-  env:
-    MARVEL_TOKEN: ${{ secrets.MARVEL_TOKEN }}
-    APP_BASE_URL: ${{ vars.APP_BASE_URL }}
-    APP_EMAIL: ${{ secrets.APP_EMAIL }}
-    APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
-```
+| Job | Project | Browser install required |
+|---|---|---|
+| API Tests | `api` | No |
+| UI Tests | `chromium` | Yes — chromium only |
+
+Reports (Playwright HTML + custom HTML + JUnit XML) are uploaded as artifacts with 7-day retention.
+
+### Configuring secrets and variables
+
+In your GitHub repository go to **Settings → Secrets and variables → Actions**:
+
+| Name | Type | Description |
+|---|---|---|
+| `MARVEL_TOKEN` | Secret | Marvel App personal access token |
+| `APP_EMAIL` | Secret | Login email for authenticated UI tests |
+| `APP_PASSWORD` | Secret | Login password for authenticated UI tests |
+| `APP_BASE_URL` | Variable | Base URL of the app under test |
+
+> Without `MARVEL_TOKEN` the API tests are **skipped** (not failed).  
+> Without `APP_EMAIL`/`APP_PASSWORD` UI tests run **unauthenticated**.
+
+### Running a specific tag manually
+
+Use **Actions → Playwright Tests → Run workflow** and enter a tag like `@smoke` in the input field to run only smoke tests.
