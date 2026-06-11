@@ -12,7 +12,8 @@
     "test:api": "npx playwright test tests/api --headed",
     "test:smoke:ui": "npx playwright test tests/UI --grep='@smoke' --headed",
     "test:smoke:api": "npx playwright test tests/api --grep='@smoke' --headed",
-    "test:smoke": "npx playwright test --grep='@smoke' --headed"
+    "test:smoke": "npx playwright test --grep='@smoke' --headed",
+    "test:unit": "npx playwright test --project=unit"
   },
   "keywords": [],
   "author": "",

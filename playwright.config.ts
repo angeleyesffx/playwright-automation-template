@@ -10,7 +10,6 @@ export default defineConfig({
   outputDir: './test-results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 2,
   workers: process.env.CI ? 2 : undefined,
   reporter: [
     ['./scripts/custom-reporter.ts'],
@@ -34,13 +33,23 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: '**/auth/auth.setup.ts',
+      retries: 0,
       use: { baseURL: process.env.APP_BASE_URL ?? 'https://en.wikipedia.org' },
     },
 
+    // Unit tests — no browser. Cover utilities (FakerDataGenerator, ResponseExtractor, etc.)
+    {
+      name: 'unit',
+      testDir: './tests/unit',
+      retries: 0,
+    },
+
     // Marvel App API tests (GraphQL — https://api.marvelapp.com/graphql)
+    // retries: 0 — API tests must not retry: POST/mutation calls could create duplicate data.
     {
       name: 'api',
       testDir: './tests/api',
+      retries: 0,
       use: {
         baseURL: 'https://api.marvelapp.com',
         ignoreHTTPSErrors: true,
@@ -48,10 +57,12 @@ export default defineConfig({
     },
 
     // UI tests — depend on setup so auth state is always ready before tests run.
+    // retries: 2 — UI tests tolerate flakiness from network and rendering timing.
     {
       name: 'chromium',
       testDir: './tests/UI',
       dependencies: ['setup'],
+      retries: 2,
       use: {
         ...devices['Desktop Chromium'],
         baseURL: 'https://en.wikipedia.org',

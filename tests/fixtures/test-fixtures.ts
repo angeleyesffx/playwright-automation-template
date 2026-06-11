@@ -10,7 +10,17 @@ type TestFixtures = {
 export const test = base.extend<TestFixtures>({
   marvelApi: async ({}, use) => {
     if (!process.env.MARVEL_TOKEN) {
-      await use(undefined as unknown as MarvelApiHelper);
+      // Return a Proxy instead of undefined so that any accidental call to marvelApi
+      // without a describe-level test.skip() produces a clear, actionable error.
+      const stub = new Proxy({} as object, {
+        get: (_target, prop) => {
+          throw new Error(
+            `marvelApi.${String(prop)}() was called but MARVEL_TOKEN is not set.\n` +
+            `Add test.skip(!process.env.MARVEL_TOKEN, '...') at the top of your test.describe block.`
+          );
+        },
+      }) as unknown as MarvelApiHelper;
+      await use(stub);
       return;
     }
     const api = createMarvelApiHelper({ silent: true });

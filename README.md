@@ -1,5 +1,7 @@
 # playwright-automation-template
 
+[![CI](https://github.com/angeleyesffx/playwright-automation-template/actions/workflows/playwright.yml/badge.svg)](https://github.com/angeleyesffx/playwright-automation-template/actions/workflows/playwright.yml)
+
 A production-ready Playwright automation template with TypeScript, featuring API testing (Marvel App GraphQL), UI testing (Wikipedia), and scalable authentication via `storageState`.
 
 ---
@@ -32,6 +34,9 @@ A production-ready Playwright automation template with TypeScript, featuring API
 │   │   └── auth.setup.ts       # storageState setup (runs once before UI tests)
 │   ├── fixtures/
 │   │   └── test-fixtures.ts    # Shared fixtures (marvelApi, googleSearchPage)
+│   ├── unit/
+│   │   ├── faker-data-generator.spec.ts  # Component-level tests for data generators
+│   │   └── response-extractor.spec.ts    # Component-level tests for response utilities
 │   ├── UI/
 │   │   └── google-search.spec.ts
 │   └── api/
@@ -77,19 +82,22 @@ cp config/.env.example config/.env
 ## Running Tests
 
 ```bash
+# Unit tests (no browser — fast)
+npm run test:unit
+
+# API tests only
+npm run test:api
+
 # All UI tests (chromium, headed)
 npm test
 
 # UI tests only
 npm run test:ui
 
-# API tests only
-npm run test:api
-
 # Smoke suite (UI + API)
 npm run test:smoke
 
-# All tests headless (Playwright default)
+# All tests headless (Playwright default — unit + api + ui)
 npx playwright test
 ```
 
@@ -126,6 +134,7 @@ The workflow lives at [.github/workflows/playwright.yml](.github/workflows/playw
 
 | Job | Project | Browser install required |
 |---|---|---|
+| Unit Tests | `unit` | No |
 | API Tests | `api` | No |
 | UI Tests | `chromium` | Yes — chromium only |
 
