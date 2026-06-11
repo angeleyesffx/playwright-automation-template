@@ -13,13 +13,14 @@ export class GoogleSearchPage extends BasePage {
     this.resultHeadings = page.locator('.mw-search-result-heading a, #firstHeading');
   }
 
+  // Fix #6: uses super.navigate() so BasePage.navigate() is no longer dead code.
   async navigate(): Promise<void> {
-    await this.page.goto('/wiki/Main_Page');
+    await super.navigate('/wiki/Main_Page');
     await this.waitForVisible(this.searchInput);
   }
 
   async search(query: string): Promise<void> {
-    await this.page.goto(`/wiki/Special:Search?search=${encodeURIComponent(query)}&ns0=1`);
+    await super.navigate(`/wiki/Special:Search?search=${encodeURIComponent(query)}&ns0=1`);
     await this.waitForVisible(this.resultsContainer);
   }
 
