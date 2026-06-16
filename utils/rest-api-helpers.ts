@@ -47,7 +47,7 @@ export class RestApiHelper {
     this.token = token;
   }
 
-  private headers(): Record<string, string> {
+  protected headers(): Record<string, string> {
     return {
       'Content-Type': 'application/json',
       Accept: 'application/json',

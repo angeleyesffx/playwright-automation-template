@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/angeleyesffx/playwright-automation-template/actions/workflows/playwright.yml/badge.svg)](https://github.com/angeleyesffx/playwright-automation-template/actions/workflows/playwright.yml)
 
-A production-ready Playwright automation template with TypeScript, featuring API testing (Marvel App GraphQL), UI testing (Wikipedia), and scalable authentication via `storageState`.
+A production-ready Playwright automation template with TypeScript, featuring API testing (Marvel App GraphQL + Restful Booker REST), UI testing (Wikipedia), and scalable authentication via `storageState`.
 
 ---
 
@@ -33,21 +33,23 @@ A production-ready Playwright automation template with TypeScript, featuring API
 │   ├── auth/
 │   │   └── auth.setup.ts       # storageState setup (runs once before UI tests)
 │   ├── fixtures/
-│   │   └── test-fixtures.ts    # Shared fixtures (marvelApi, googleSearchPage)
+│   │   └── test-fixtures.ts    # Shared fixtures (marvelApi, bookerApi, googleSearchPage)
 │   ├── unit/
 │   │   ├── faker-data-generator.spec.ts  # Component-level tests for data generators
 │   │   └── response-extractor.spec.ts    # Component-level tests for response utilities
 │   ├── UI/
 │   │   └── google-search.spec.ts
 │   └── api/
-│       └── marvel.api.spec.ts
+│       ├── marvel.api.spec.ts          # GraphQL API example
+│       └── restful-booker.api.spec.ts  # REST API example (CRUD, BVA, negative cases)
 └── utils/
-    ├── faker-data-generator.ts  # Generic test data (identity, address, dates)
-    ├── logger.ts                # Singleton logger with API request/response formatting
-    ├── marvel-api-helper.ts     # Marvel App GraphQL API helper
-    ├── message-helpers.ts       # ARIA alert/toast assertion utilities
-    ├── response-extractor.ts    # Path-based JSON response extraction
-    └── rest-api-helpers.ts      # Generic REST + GraphQL base class
+    ├── faker-data-generator.ts   # Generic test data (identity, address, dates)
+    ├── logger.ts                 # Singleton logger with API request/response formatting
+    ├── marvel-api-helper.ts      # Marvel App GraphQL API helper
+    ├── message-helpers.ts        # ARIA alert/toast assertion utilities
+    ├── response-extractor.ts     # Path-based JSON response extraction
+    ├── rest-api-helpers.ts       # Generic REST + GraphQL base class
+    └── restful-booker-helper.ts  # Restful Booker REST API helper (extends RestApiHelper)
 ```
 
 ---
@@ -74,8 +76,9 @@ cp config/.env.example config/.env
 | `APP_EMAIL` | Optional | Email for authenticated UI tests |
 | `APP_PASSWORD` | Optional | Password for authenticated UI tests |
 
-> API tests are **skipped** when `MARVEL_TOKEN` is not set.  
-> UI tests run unauthenticated when `APP_EMAIL`/`APP_PASSWORD` are not set.
+> Marvel API tests are **skipped** when `MARVEL_TOKEN` is not set.  
+> UI tests run unauthenticated when `APP_EMAIL`/`APP_PASSWORD` are not set.  
+> Restful Booker tests need no configuration — it's a public sandbox with default credentials (`admin`/`password123`).
 
 ---
 

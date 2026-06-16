@@ -1,10 +1,12 @@
 import { test as base } from '@playwright/test';
 import { MarvelApiHelper, createMarvelApiHelper } from '../../utils/marvel-api-helper';
 import { GoogleSearchPage } from '../../pages/google-search.page';
+import { RestfulBookerHelper, createRestfulBookerHelper } from '../../utils/restful-booker-helper';
 
 type TestFixtures = {
   marvelApi: MarvelApiHelper;
   googleSearchPage: GoogleSearchPage;
+  bookerApi: RestfulBookerHelper;
 };
 
 export const test = base.extend<TestFixtures>({
@@ -31,6 +33,13 @@ export const test = base.extend<TestFixtures>({
 
   googleSearchPage: async ({ page }, use) => {
     await use(new GoogleSearchPage(page));
+  },
+
+  bookerApi: async ({}, use) => {
+    const api = createRestfulBookerHelper({ silent: true });
+    await api.createToken();
+    await use(api);
+    await api.dispose();
   },
 });
 
