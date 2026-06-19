@@ -36,11 +36,18 @@ export default defineConfig({
     // Runs once before all UI projects — logs in and saves storage state.
     // If APP_EMAIL / APP_PASSWORD are not set, saves an empty state so UI
     // tests still run (unauthenticated). See tests/auth/auth.setup.ts.
+    // setup always runs in Chromium — its auth state (storageState) is reused by
+    // all browser projects. Without an explicit browser here the project silently
+    // defaults to Chromium, which breaks cross-browser jobs that install only
+    // Firefox/WebKit. Declaring it explicitly prevents that silent mismatch.
     {
       name: "setup",
       testMatch: "**/auth/auth.setup.ts",
       retries: 0,
-      use: { baseURL: process.env.APP_BASE_URL ?? "https://en.wikipedia.org" },
+      use: {
+        ...devices["Desktop Chromium"],
+        baseURL: process.env.APP_BASE_URL ?? "https://en.wikipedia.org",
+      },
     },
 
     // Unit tests — no browser. Cover utilities (FakerDataGenerator, ResponseExtractor, etc.)
