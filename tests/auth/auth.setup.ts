@@ -1,10 +1,13 @@
-import { test as setup } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
+import { test as setup } from "@playwright/test";
+import fs from "fs";
+import path from "path";
 
-export const AUTH_FILE = path.resolve(__dirname, '../../playwright/.auth/user.json');
+export const AUTH_FILE = path.resolve(
+  __dirname,
+  "../../playwright/.auth/user.json",
+);
 
-setup('authenticate', async ({ page }) => {
+setup("authenticate", async ({ page }) => {
   fs.mkdirSync(path.dirname(AUTH_FILE), { recursive: true });
 
   // If no credentials are configured, save an empty storage state so

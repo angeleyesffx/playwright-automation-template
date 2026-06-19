@@ -1,5 +1,5 @@
-import { APIRequestContext, request } from '@playwright/test';
-import { logger } from './logger';
+import { APIRequestContext, request } from "@playwright/test";
+import { logger } from "./logger";
 
 export interface AuthResponse {
   token: string;
@@ -8,12 +8,12 @@ export interface AuthResponse {
 
 export class RestApiHelper {
   private apiContext: APIRequestContext | null = null;
-  protected token: string = '';
+  protected token: string = "";
   protected readonly baseUrl: string;
   private readonly silentLogs: boolean;
 
   constructor(baseUrl: string, options?: { silent?: boolean }) {
-    this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    this.baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
     this.silentLogs = options?.silent ?? false;
     if (this.silentLogs) logger.silent = true;
   }
@@ -21,7 +21,10 @@ export class RestApiHelper {
   async init(): Promise<void> {
     this.apiContext = await request.newContext({
       baseURL: this.baseUrl,
-      extraHTTPHeaders: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      extraHTTPHeaders: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
     });
   }
 
@@ -29,13 +32,20 @@ export class RestApiHelper {
    * Generic token-based authentication.
    * Override in a subclass to implement your app's auth scheme.
    */
-  async authenticate(endpoint: string, credentials: Record<string, unknown>): Promise<string> {
+  async authenticate(
+    endpoint: string,
+    credentials: Record<string, unknown>,
+  ): Promise<string> {
     if (!this.apiContext) await this.init();
 
-    const response = await this.apiContext!.post(endpoint, { data: credentials });
+    const response = await this.apiContext!.post(endpoint, {
+      data: credentials,
+    });
 
     if (!response.ok()) {
-      throw new Error(`Authentication failed: ${response.status()} ${response.statusText()}`);
+      throw new Error(
+        `Authentication failed: ${response.status()} ${response.statusText()}`,
+      );
     }
 
     const body = (await response.json()) as AuthResponse;
@@ -49,24 +59,26 @@ export class RestApiHelper {
 
   protected headers(): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
       ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
     };
   }
 
   protected async restRequest<T>(
-    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     endpoint: string,
     data?: unknown,
-    params?: Record<string, string | number>
+    params?: Record<string, string | number>,
   ): Promise<T> {
     if (!this.apiContext) await this.init();
 
     let url = endpoint;
     if (params && Object.keys(params).length > 0) {
       const qs = new URLSearchParams(
-        Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
+        Object.fromEntries(
+          Object.entries(params).map(([k, v]) => [k, String(v)]),
+        ),
       ).toString();
       url = `${endpoint}?${qs}`;
     }
@@ -74,16 +86,16 @@ export class RestApiHelper {
     logger.debug(`${method} ${this.baseUrl}${url}`);
 
     const options: Record<string, unknown> = { headers: this.headers() };
-    if (data && ['POST', 'PUT', 'PATCH'].includes(method)) options.data = data;
+    if (data && ["POST", "PUT", "PATCH"].includes(method)) options.data = data;
 
     const response = await this.apiContext![
-      method.toLowerCase() as 'get' | 'post' | 'put' | 'patch' | 'delete'
+      method.toLowerCase() as "get" | "post" | "put" | "patch" | "delete"
     ](url, options);
 
     if (!response.ok()) {
-      const body = await response.text().catch(() => '');
+      const body = await response.text().catch(() => "");
       throw new Error(
-        `${method} ${endpoint} → ${response.status()} ${response.statusText()}. ${body}`
+        `${method} ${endpoint} → ${response.status()} ${response.statusText()}. ${body}`,
       );
     }
 
@@ -101,7 +113,7 @@ export class RestApiHelper {
     operationName: string,
     variables: Record<string, unknown>,
     query: string,
-    endpoint = '/graphql'
+    endpoint = "/graphql",
   ): Promise<T> {
     if (!this.apiContext) await this.init();
 
@@ -111,8 +123,10 @@ export class RestApiHelper {
     });
 
     if (!response.ok()) {
-      const body = await response.text().catch(() => '');
-      throw new Error(`GraphQL ${operationName} → ${response.status()}. ${body}`);
+      const body = await response.text().catch(() => "");
+      throw new Error(
+        `GraphQL ${operationName} → ${response.status()}. ${body}`,
+      );
     }
 
     const body = await response.json();
@@ -123,24 +137,27 @@ export class RestApiHelper {
     return body.data as T;
   }
 
-  async get<T>(endpoint: string, params?: Record<string, string | number>): Promise<T> {
-    return this.restRequest<T>('GET', endpoint, undefined, params);
+  async get<T>(
+    endpoint: string,
+    params?: Record<string, string | number>,
+  ): Promise<T> {
+    return this.restRequest<T>("GET", endpoint, undefined, params);
   }
 
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.restRequest<T>('POST', endpoint, data);
+    return this.restRequest<T>("POST", endpoint, data);
   }
 
   async put<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.restRequest<T>('PUT', endpoint, data);
+    return this.restRequest<T>("PUT", endpoint, data);
   }
 
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.restRequest<T>('PATCH', endpoint, data);
+    return this.restRequest<T>("PATCH", endpoint, data);
   }
 
   async delete<T>(endpoint: string): Promise<T> {
-    return this.restRequest<T>('DELETE', endpoint);
+    return this.restRequest<T>("DELETE", endpoint);
   }
 
   async dispose(): Promise<void> {
@@ -154,7 +171,7 @@ export class RestApiHelper {
 
 export function createRestApiHelper(
   baseUrl: string,
-  options?: { silent?: boolean }
+  options?: { silent?: boolean },
 ): RestApiHelper {
   return new RestApiHelper(baseUrl, options);
 }

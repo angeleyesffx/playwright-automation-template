@@ -9,9 +9,9 @@
     "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
     "test": "npx playwright test --project='chromium' --headed",
     "test:ui": "npx playwright test tests/UI --headed",
-    "test:api": "npx playwright test tests/api --headed",
+    "test:api": "npx playwright test tests/api",
     "test:smoke:ui": "npx playwright test tests/UI --grep='@smoke' --headed",
-    "test:smoke:api": "npx playwright test tests/api --grep='@smoke' --headed",
+    "test:smoke:api": "npx playwright test tests/api --grep='@smoke'",
     "test:smoke": "npx playwright test --grep='@smoke' --headed",
     "test:unit": "npx playwright test --project=unit"
   },
@@ -19,8 +19,8 @@
   "author": "",
   "license": "ISC",
   "description": "Playwright automation template with Marvel API and Google Search examples",
-  "dependencies": {},
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.57.0",
     "@types/node": "^24.0.10",

@@ -13,10 +13,35 @@ on:
         default: ""
 
 jobs:
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
   test-unit:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    needs: code-quality
 
     steps:
       - name: Checkout
@@ -34,10 +59,19 @@ jobs:
       - name: Run unit tests
         run: npx playwright test --project=unit
 
+      - name: Upload blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-unit
+          path: blob-report/
+          retention-days: 1
+
   test-api:
     name: API Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: code-quality
 
     steps:
       - name: Checkout
@@ -63,21 +97,19 @@ jobs:
         env:
           MARVEL_TOKEN: ${{ secrets.MARVEL_TOKEN }}
 
-      - name: Upload API report
+      - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: report-api
-          path: |
-            playwright-report/
-            html-report/
-            test-results/junit.xml
-          retention-days: 7
+          name: blob-report-api
+          path: blob-report/
+          retention-days: 1
 
   test-ui:
     name: UI Tests (Chromium)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    needs: code-quality
 
     steps:
       - name: Checkout
@@ -108,13 +140,92 @@ jobs:
           APP_EMAIL: ${{ secrets.APP_EMAIL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
 
-      - name: Upload UI report
+      - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: report-ui
-          path: |
-            playwright-report/
-            html-report/
-            test-results/junit.xml
+          name: blob-report-ui
+          path: blob-report/
+          retention-days: 1
+
+  test-ui-cross-browser:
+    name: UI Tests (Firefox + WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: code-quality
+    # Cross-browser runs only on push to main to keep PR feedback fast.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps firefox webkit
+
+      - name: Run cross-browser UI tests
+        run: |
+          GREP="${{ github.event.inputs.tags }}"
+          if [ -n "$GREP" ]; then
+            npx playwright test --project=firefox --project=webkit --grep="$GREP"
+          else
+            npx playwright test --project=firefox --project=webkit
+          fi
+        env:
+          CROSS_BROWSER: "true"
+          APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+          APP_EMAIL: ${{ secrets.APP_EMAIL }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+
+      - name: Upload blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-ui-cross-browser
+          path: blob-report/
+          retention-days: 1
+
+  merge-reports:
+    name: Merge Reports
+    runs-on: ubuntu-latest
+    needs: [test-unit, test-api, test-ui]
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download all blob reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: blob-report-*
+          merge-multiple: true
+          path: all-blob-reports
+
+      - name: Merge reports
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
           retention-days: 7

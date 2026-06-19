@@ -20,7 +20,7 @@ export function generateHtmlReport(
     duration: number;
     error?: string;
     testId?: string;
-  }>
+  }>,
 ): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -500,7 +500,7 @@ export function generateHtmlReport(
                     </div>
                 `;
                   })
-                  .join('')}
+                  .join("")}
             </div>
             `
                 : `

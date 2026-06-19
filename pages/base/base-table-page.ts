@@ -1,5 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './base-page';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "./base-page";
 
 export class BaseTablePage extends BasePage {
   readonly searchField: Locator;
@@ -8,9 +8,11 @@ export class BaseTablePage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.searchField = page.getByRole('searchbox');
-    this.nextPageButton = page.getByRole('button', { name: /next page/i });
-    this.previousPageButton = page.getByRole('button', { name: /previous page/i });
+    this.searchField = page.getByRole("searchbox");
+    this.nextPageButton = page.getByRole("button", { name: /next page/i });
+    this.previousPageButton = page.getByRole("button", {
+      name: /previous page/i,
+    });
   }
 
   async search(text: string): Promise<void> {
@@ -53,7 +55,7 @@ export class BaseTablePage extends BasePage {
     const count = await cells.count();
     const values: string[] = [];
     for (let i = 0; i < count; i++) {
-      values.push((await cells.nth(i).textContent())?.trim() ?? '');
+      values.push((await cells.nth(i).textContent())?.trim() ?? "");
     }
     return values;
   }
@@ -66,7 +68,9 @@ export class BaseTablePage extends BasePage {
     for (let i = 1; i <= rowCount; i++) {
       const cells = await this.getRowCellValues(i);
       const row: Record<string, string> = {};
-      headers.forEach((h, idx) => { row[h] = cells[idx] ?? ''; });
+      headers.forEach((h, idx) => {
+        row[h] = cells[idx] ?? "";
+      });
       rows.push(row);
     }
 

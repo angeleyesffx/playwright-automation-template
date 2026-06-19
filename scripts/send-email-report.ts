@@ -4,7 +4,7 @@
  * (SMTP, SendGrid, or other email providers)
  */
 
-import fs from 'fs';
+import fs from "fs";
 
 interface ReportData {
   environment: string;
@@ -31,12 +31,14 @@ interface ReportData {
  * Log report notification details for email integration
  */
 // eslint-disable-next-line @typescript-eslint/require-await
-export async function sendTestReportEmail(reportData: ReportData): Promise<void> {
+export async function sendTestReportEmail(
+  reportData: ReportData,
+): Promise<void> {
   // Log report notification details for email integration
-  const recipients = process.env.EMAIL_RECIPIENTS || '';
+  const recipients = process.env.EMAIL_RECIPIENTS || "";
 
   if (!recipients) {
-    console.warn('⚠️  EMAIL_RECIPIENTS not set. Email notification skipped.');
+    console.warn("⚠️  EMAIL_RECIPIENTS not set. Email notification skipped.");
     return;
   }
 
@@ -84,23 +86,27 @@ View full report attached or in CI artifacts.
     `;
 
     // Log report information for email integration
-    console.log('\n=====================================');
-    console.log('📧 TEST REPORT NOTIFICATION');
-    console.log('=====================================');
+    console.log("\n=====================================");
+    console.log("📧 TEST REPORT NOTIFICATION");
+    console.log("=====================================");
     console.log(`To: ${recipients}`);
     console.log(`Subject: ${subject}`);
-    console.log('-------------------------------------');
+    console.log("-------------------------------------");
     console.log(plainTextBody);
-    console.log('-------------------------------------');
+    console.log("-------------------------------------");
     console.log(`Report File: ${reportData.reportPath}`);
     console.log(`Report Size: ${(reportSize / 1024).toFixed(2)} KB`);
-    console.log('=====================================\n');
+    console.log("=====================================\n");
 
-    console.log('✅ Report notification details prepared');
-    console.log('📝 Integration Instructions:');
-    console.log('   • Use EMAIL_RECIPIENTS environment variable to specify recipients');
-    console.log('   • Integrate with your email system (SMTP, SendGrid, AWS SES, etc.)');
-    console.log('   • Report file available at:', reportData.reportPath);
+    console.log("✅ Report notification details prepared");
+    console.log("📝 Integration Instructions:");
+    console.log(
+      "   • Use EMAIL_RECIPIENTS environment variable to specify recipients",
+    );
+    console.log(
+      "   • Integrate with your email system (SMTP, SendGrid, AWS SES, etc.)",
+    );
+    console.log("   • Report file available at:", reportData.reportPath);
   } catch (error) {
     console.error(`❌ Error preparing report notification:`, error);
     throw error;
@@ -113,13 +119,14 @@ View full report attached or in CI artifacts.
 async function main() {
   const args = process.argv.slice(2);
   const reportPath = args[0];
-  const environment = process.env.ENVIRONMENT || 'unknown';
-  const browser = process.env.BROWSER || 'chromium';
-  const testTags = process.env.TEST_TAGS || 'unknown';
-  const buildId = process.env.BUILD_ID || process.env.GITHUB_RUN_ID || 'local';
-  const buildNumber = process.env.BUILD_NUMBER || process.env.GITHUB_RUN_NUMBER || 'local';
-  const recipientsEnv = process.env.EMAIL_RECIPIENTS || '';
-  const recipients = recipientsEnv.split(',').filter((e) => e.trim());
+  const environment = process.env.ENVIRONMENT || "unknown";
+  const browser = process.env.BROWSER || "chromium";
+  const testTags = process.env.TEST_TAGS || "unknown";
+  const buildId = process.env.BUILD_ID || process.env.GITHUB_RUN_ID || "local";
+  const buildNumber =
+    process.env.BUILD_NUMBER || process.env.GITHUB_RUN_NUMBER || "local";
+  const recipientsEnv = process.env.EMAIL_RECIPIENTS || "";
+  const recipients = recipientsEnv.split(",").filter((e) => e.trim());
 
   if (!reportPath || !fs.existsSync(reportPath)) {
     console.error(`❌ Report file not found: ${reportPath}`);
@@ -151,7 +158,7 @@ async function main() {
   try {
     await sendTestReportEmail(reportData);
   } catch (error) {
-    console.error('Failed to send report email:', error);
+    console.error("Failed to send report email:", error);
     process.exit(1);
   }
 }

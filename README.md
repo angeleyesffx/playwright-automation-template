@@ -69,12 +69,12 @@ cp config/.env.example config/.env
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
+| Variable       | Required | Description                                                                                              |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------- |
 | `MARVEL_TOKEN` | Optional | Personal access token — generate at [marvelapp.com/oauth/devtoken](https://marvelapp.com/oauth/devtoken) |
-| `APP_BASE_URL` | Optional | Base URL for the app under test |
-| `APP_EMAIL` | Optional | Email for authenticated UI tests |
-| `APP_PASSWORD` | Optional | Password for authenticated UI tests |
+| `APP_BASE_URL` | Optional | Base URL for the app under test                                                                          |
+| `APP_EMAIL`    | Optional | Email for authenticated UI tests                                                                         |
+| `APP_PASSWORD` | Optional | Password for authenticated UI tests                                                                      |
 
 > Marvel API tests are **skipped** when `MARVEL_TOKEN` is not set.  
 > UI tests run unauthenticated when `APP_EMAIL`/`APP_PASSWORD` are not set.  
@@ -135,11 +135,11 @@ The workflow lives at [.github/workflows/playwright.yml](.github/workflows/playw
 
 **Jobs run in parallel:**
 
-| Job | Project | Browser install required |
-|---|---|---|
-| Unit Tests | `unit` | No |
-| API Tests | `api` | No |
-| UI Tests | `chromium` | Yes — chromium only |
+| Job        | Project    | Browser install required |
+| ---------- | ---------- | ------------------------ |
+| Unit Tests | `unit`     | No                       |
+| API Tests  | `api`      | No                       |
+| UI Tests   | `chromium` | Yes — chromium only      |
 
 Reports (Playwright HTML + custom HTML + JUnit XML) are uploaded as artifacts with 7-day retention.
 
@@ -147,12 +147,12 @@ Reports (Playwright HTML + custom HTML + JUnit XML) are uploaded as artifacts wi
 
 In your GitHub repository go to **Settings → Secrets and variables → Actions**:
 
-| Name | Type | Description |
-|---|---|---|
-| `MARVEL_TOKEN` | Secret | Marvel App personal access token |
-| `APP_EMAIL` | Secret | Login email for authenticated UI tests |
-| `APP_PASSWORD` | Secret | Login password for authenticated UI tests |
-| `APP_BASE_URL` | Variable | Base URL of the app under test |
+| Name           | Type     | Description                               |
+| -------------- | -------- | ----------------------------------------- |
+| `MARVEL_TOKEN` | Secret   | Marvel App personal access token          |
+| `APP_EMAIL`    | Secret   | Login email for authenticated UI tests    |
+| `APP_PASSWORD` | Secret   | Login password for authenticated UI tests |
+| `APP_BASE_URL` | Variable | Base URL of the app under test            |
 
 > Without `MARVEL_TOKEN` the API tests are **skipped** (not failed).  
 > Without `APP_EMAIL`/`APP_PASSWORD` UI tests run **unauthenticated**.

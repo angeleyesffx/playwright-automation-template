@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect } from "@playwright/test";
 
 export class BasePage {
   readonly page: Page;
@@ -21,13 +21,16 @@ export class BasePage {
     await expect(locator).toHaveValue(value);
   }
 
-  async validateFieldValue(locator: Locator, expectedValue: string): Promise<void> {
+  async validateFieldValue(
+    locator: Locator,
+    expectedValue: string,
+  ): Promise<void> {
     await this.scrollIntoView(locator);
     await expect(locator).toHaveValue(expectedValue);
   }
 
   async waitForVisible(locator: Locator, timeout = 15000): Promise<void> {
-    await locator.waitFor({ state: 'visible', timeout });
+    await locator.waitFor({ state: "visible", timeout });
   }
 
   currentUrl(): string {

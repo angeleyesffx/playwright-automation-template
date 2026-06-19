@@ -66,7 +66,12 @@ export class Logger {
     return level >= this.logLevel;
   }
 
-  private log(level: LogLevel, message: string, context?: unknown, error?: Error): void {
+  private log(
+    level: LogLevel,
+    message: string,
+    context?: unknown,
+    error?: Error,
+  ): void {
     if (!this.shouldLog(level)) return;
 
     const entry: LogEntry = {
@@ -81,10 +86,12 @@ export class Logger {
 
     const levelName = LogLevel[level];
     const timestamp = entry.timestamp.toISOString();
-    const contextStr = context ? ` | Context: ${JSON.stringify(context)}` : '';
-    const errorStr = error ? ` | Error: ${error.message}` : '';
+    const contextStr = context ? ` | Context: ${JSON.stringify(context)}` : "";
+    const errorStr = error ? ` | Error: ${error.message}` : "";
 
-    console.log(`[${timestamp}] ${levelName}: ${message}${contextStr}${errorStr}`);
+    console.log(
+      `[${timestamp}] ${levelName}: ${message}${contextStr}${errorStr}`,
+    );
 
     if (error && level >= LogLevel.ERROR) {
       console.error(error.stack);
@@ -124,9 +131,9 @@ export class Logger {
    */
   private isCI(): boolean {
     return (
-      process.env.CI === 'true' ||
-      process.env.NO_COLOR === '1' ||
-      process.env.FORCE_COLOR === '0'
+      process.env.CI === "true" ||
+      process.env.NO_COLOR === "1" ||
+      process.env.FORCE_COLOR === "0"
     );
   }
 
@@ -138,8 +145,8 @@ export class Logger {
     const { method, url, headers, body } = request;
 
     const isCI = this.isCI();
-    const separator = isCI ? '-'.repeat(80) : '═'.repeat(80);
-    const requestIcon = isCI ? 'REQUEST' : '📤 API REQUEST';
+    const separator = isCI ? "-".repeat(80) : "═".repeat(80);
+    const requestIcon = isCI ? "REQUEST" : "📤 API REQUEST";
 
     const requestLog = [
       `\n${separator}`,
@@ -149,88 +156,101 @@ export class Logger {
     ];
 
     if (headers && Object.keys(headers).length > 0) {
-      const headersIcon = isCI ? 'Headers:' : '📋 Headers:';
+      const headersIcon = isCI ? "Headers:" : "📋 Headers:";
       requestLog.push(`\n${headersIcon}`);
       Object.entries(headers).forEach(([key, value]) => {
         // Mask sensitive headers
-        const isSensitive = ['authorization', 'cookie', 'x-api-key', 'token'].some((s) =>
-          key.toLowerCase().includes(s)
-        );
-        const displayValue = isSensitive ? '***REDACTED***' : value;
+        const isSensitive = [
+          "authorization",
+          "cookie",
+          "x-api-key",
+          "token",
+        ].some((s) => key.toLowerCase().includes(s));
+        const displayValue = isSensitive ? "***REDACTED***" : value;
         requestLog.push(`  ${key}: ${displayValue}`);
       });
     }
 
     if (body) {
-      const bodyIcon = isCI ? 'Body:' : '📦 Body:';
+      const bodyIcon = isCI ? "Body:" : "📦 Body:";
       requestLog.push(`\n${bodyIcon}`);
-      const bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
-      bodyStr.split('\n').forEach((line) => {
+      const bodyStr =
+        typeof body === "string" ? body : JSON.stringify(body, null, 2);
+      bodyStr.split("\n").forEach((line) => {
         requestLog.push(`  ${line}`);
       });
     }
 
     requestLog.push(`${separator}\n`);
     if (!this._silent) {
-      console.log(requestLog.join('\n'));
+      console.log(requestLog.join("\n"));
     }
   }
 
   /**
    * Logs API response with beautiful formatting and status indicators
    */
-  logApiResponse(request: ApiRequest, response: ApiResponse, duration: number): void {
+  logApiResponse(
+    request: ApiRequest,
+    response: ApiResponse,
+    duration: number,
+  ): void {
     const { method, url } = request;
     const { status, statusText, headers, body } = response;
 
     const timestamp = new Date().toISOString();
     const isCI = this.isCI();
-    const statusEmoji = isCI ? this.getStatusText(status) : this.getStatusEmoji(status);
-    const statusColor = isCI ? '' : this.getStatusColor(status);
-    const resetColor = isCI ? '' : '\x1b[0m';
+    const statusEmoji = isCI
+      ? this.getStatusText(status)
+      : this.getStatusEmoji(status);
+    const statusColor = isCI ? "" : this.getStatusColor(status);
+    const resetColor = isCI ? "" : "\x1b[0m";
 
-    const separator = isCI ? '-'.repeat(80) : '═'.repeat(80);
+    const separator = isCI ? "-".repeat(80) : "═".repeat(80);
     const responseLog = [
       `\n${separator}`,
       `${statusEmoji} API RESPONSE - ${timestamp} (${duration}ms)`,
       `${separator}`,
       `${method.toUpperCase()} ${url}`,
-      `Status: ${statusColor}${status}${resetColor} ${statusText || ''}`,
+      `Status: ${statusColor}${status}${resetColor} ${statusText || ""}`,
     ];
 
     if (headers && Object.keys(headers).length > 0) {
-      const headersIcon = isCI ? 'Headers:' : '📋 Headers:';
+      const headersIcon = isCI ? "Headers:" : "📋 Headers:";
       responseLog.push(`\n${headersIcon}`);
       Object.entries(headers).forEach(([key, value]) => {
-        const isSensitive = ['authorization', 'cookie', 'set-cookie'].some((s) =>
-          key.toLowerCase().includes(s)
+        const isSensitive = ["authorization", "cookie", "set-cookie"].some(
+          (s) => key.toLowerCase().includes(s),
         );
-        const displayValue = isSensitive ? '***REDACTED***' : value;
+        const displayValue = isSensitive ? "***REDACTED***" : value;
         responseLog.push(`  ${key}: ${displayValue}`);
       });
     }
 
     if (body) {
-      const bodyIcon = isCI ? 'Body:' : '📦 Body:';
+      const bodyIcon = isCI ? "Body:" : "📦 Body:";
       responseLog.push(`\n${bodyIcon}`);
       let bodyStr: string;
       try {
-        bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
+        bodyStr =
+          typeof body === "string" ? body : JSON.stringify(body, null, 2);
         // Only truncate extremely large responses (50KB+)
         if (bodyStr.length > 50000) {
-          bodyStr = bodyStr.substring(0, 50000) + '\n... [Response truncated - too large]';
+          bodyStr =
+            bodyStr.substring(0, 50000) +
+            "\n... [Response truncated - too large]";
         }
       } catch {
         bodyStr = String(body);
       }
-      bodyStr.split('\n').forEach((line) => {
+      bodyStr.split("\n").forEach((line) => {
         responseLog.push(`  ${line}`);
       });
     }
 
     responseLog.push(`${separator}\n`);
     if (!this._silent) {
-      console.log(responseLog.join('\n'));
+      console.log(responseLog.join("\n"));
       // Also log to internal logs only when not silent
       this.info(`API Response: ${method} ${url}`, {
         status,
@@ -248,14 +268,14 @@ export class Logger {
     const { method, url } = request;
     const timestamp = new Date().toISOString();
     const isCI = this.isCI();
-    const separator = isCI ? '-'.repeat(80) : '═'.repeat(80);
-    const errorIcon = isCI ? 'API ERROR' : '❌ API ERROR';
-    const errorLabel = isCI ? 'Error:' : '🔴 Error:';
-    const stackLabel = isCI ? 'Stack Trace:' : '📍 Stack Trace:';
+    const separator = isCI ? "-".repeat(80) : "═".repeat(80);
+    const errorIcon = isCI ? "API ERROR" : "❌ API ERROR";
+    const errorLabel = isCI ? "Error:" : "🔴 Error:";
+    const stackLabel = isCI ? "Stack Trace:" : "📍 Stack Trace:";
 
     const errorLog = [
       `\n${separator}`,
-      `${errorIcon} - ${timestamp}${duration ? ` (${duration}ms)` : ''}`,
+      `${errorIcon} - ${timestamp}${duration ? ` (${duration}ms)` : ""}`,
       `${separator}`,
       `${method.toUpperCase()} ${url}`,
       `\n${errorLabel}`,
@@ -265,7 +285,7 @@ export class Logger {
     if (error.stack) {
       errorLog.push(`\n${stackLabel}`);
       error.stack
-        .split('\n')
+        .split("\n")
         .slice(1)
         .forEach((line) => {
           errorLog.push(`  ${line}`);
@@ -274,7 +294,7 @@ export class Logger {
 
     errorLog.push(`${separator}\n`);
     if (!this._silent) {
-      console.error(errorLog.join('\n'));
+      console.error(errorLog.join("\n"));
     }
 
     this.error(`API Error: ${method} ${url}`, { method, url, duration }, error);
@@ -284,40 +304,40 @@ export class Logger {
    * Get emoji based on HTTP status code
    */
   private getStatusEmoji(status: number): string {
-    if (status >= 200 && status < 300) return '✅';
-    if (status >= 300 && status < 400) return '↪️';
-    if (status >= 400 && status < 500) return '⚠️';
-    if (status >= 500) return '❌';
-    return '❓';
+    if (status >= 200 && status < 300) return "✅";
+    if (status >= 300 && status < 400) return "↪️";
+    if (status >= 400 && status < 500) return "⚠️";
+    if (status >= 500) return "❌";
+    return "❓";
   }
 
   /**
    * Get status text for CI environments (no emojis)
    */
   private getStatusText(status: number): string {
-    if (status >= 200 && status < 300) return 'SUCCESS';
-    if (status >= 300 && status < 400) return 'REDIRECT';
-    if (status >= 400 && status < 500) return 'CLIENT_ERROR';
-    if (status >= 500) return 'SERVER_ERROR';
-    return 'UNKNOWN';
+    if (status >= 200 && status < 300) return "SUCCESS";
+    if (status >= 300 && status < 400) return "REDIRECT";
+    if (status >= 400 && status < 500) return "CLIENT_ERROR";
+    if (status >= 500) return "SERVER_ERROR";
+    return "UNKNOWN";
   }
 
   /**
    * Get ANSI color code based on HTTP status code
    */
   private getStatusColor(status: number): string {
-    if (status >= 200 && status < 300) return '\x1b[32m'; // Green
-    if (status >= 300 && status < 400) return '\x1b[36m'; // Cyan
-    if (status >= 400 && status < 500) return '\x1b[33m'; // Yellow
-    if (status >= 500) return '\x1b[31m'; // Red
-    return '';
+    if (status >= 200 && status < 300) return "\x1b[32m"; // Green
+    if (status >= 300 && status < 400) return "\x1b[36m"; // Cyan
+    if (status >= 400 && status < 500) return "\x1b[33m"; // Yellow
+    if (status >= 500) return "\x1b[31m"; // Red
+    return "";
   }
 
   /**
    * Summary report of all API calls
    */
   getApiSummary(): string {
-    const logs = this.logs.filter((log) => log.message.includes('API'));
+    const logs = this.logs.filter((log) => log.message.includes("API"));
     const totalCalls = logs.length;
     const errors = logs.filter((log) => log.level >= LogLevel.ERROR).length;
     const warnings = logs.filter((log) => log.level === LogLevel.WARN).length;
@@ -366,6 +386,10 @@ export function logWarn(message: string, context?: unknown): void {
   logger.warn(message, context);
 }
 
-export function logError(message: string, context?: unknown, error?: Error): void {
+export function logError(
+  message: string,
+  context?: unknown,
+  error?: Error,
+): void {
   logger.error(message, context, error);
 }

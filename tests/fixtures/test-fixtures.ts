@@ -1,7 +1,14 @@
-import { test as base } from '@playwright/test';
-import { MarvelApiHelper, createMarvelApiHelper } from '../../utils/marvel-api-helper';
-import { GoogleSearchPage } from '../../pages/google-search.page';
-import { RestfulBookerHelper, createRestfulBookerHelper } from '../../utils/restful-booker-helper';
+import { test as base } from "@playwright/test";
+import "./custom-matchers";
+import {
+  MarvelApiHelper,
+  createMarvelApiHelper,
+} from "../../utils/marvel-api-helper";
+import { GoogleSearchPage } from "../../pages/google-search.page";
+import {
+  RestfulBookerHelper,
+  createRestfulBookerHelper,
+} from "../../utils/restful-booker-helper";
 
 type TestFixtures = {
   marvelApi: MarvelApiHelper;
@@ -18,7 +25,7 @@ export const test = base.extend<TestFixtures>({
         get: (_target, prop) => {
           throw new Error(
             `marvelApi.${String(prop)}() was called but MARVEL_TOKEN is not set.\n` +
-            `Add test.skip(!process.env.MARVEL_TOKEN, '...') at the top of your test.describe block.`
+              `Add test.skip(!process.env.MARVEL_TOKEN, '...') at the top of your test.describe block.`,
           );
         },
       }) as unknown as MarvelApiHelper;
@@ -43,4 +50,4 @@ export const test = base.extend<TestFixtures>({
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";

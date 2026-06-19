@@ -1,4 +1,4 @@
-import { RestApiHelper } from './rest-api-helpers';
+import { RestApiHelper } from "./rest-api-helpers";
 
 export interface BookingDates {
   checkin: string;
@@ -31,23 +31,28 @@ export interface BookingIdRef {
  */
 export class RestfulBookerHelper extends RestApiHelper {
   constructor(options?: { silent?: boolean }) {
-    super('https://restful-booker.herokuapp.com', options);
+    super("https://restful-booker.herokuapp.com", options);
   }
 
   protected headers(): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
       ...(this.token ? { Cookie: `token=${this.token}` } : {}),
     };
   }
 
-  async createToken(username = 'admin', password = 'password123'): Promise<string> {
-    return this.authenticate('/auth', { username, password });
+  async createToken(
+    username = "admin",
+    password = "password123",
+  ): Promise<string> {
+    return this.authenticate("/auth", { username, password });
   }
 
-  async getBookingIds(params?: Record<string, string | number>): Promise<BookingIdRef[]> {
-    return this.get<BookingIdRef[]>('/booking', params);
+  async getBookingIds(
+    params?: Record<string, string | number>,
+  ): Promise<BookingIdRef[]> {
+    return this.get<BookingIdRef[]>("/booking", params);
   }
 
   async getBooking(id: number): Promise<Booking> {
@@ -55,7 +60,7 @@ export class RestfulBookerHelper extends RestApiHelper {
   }
 
   async createBooking(booking: Booking): Promise<BookingResponse> {
-    return this.post<BookingResponse>('/booking', booking);
+    return this.post<BookingResponse>("/booking", booking);
   }
 
   async updateBooking(id: number, booking: Booking): Promise<Booking> {
@@ -67,10 +72,12 @@ export class RestfulBookerHelper extends RestApiHelper {
   }
 
   async ping(): Promise<void> {
-    await this.get<unknown>('/ping');
+    await this.get<unknown>("/ping");
   }
 }
 
-export function createRestfulBookerHelper(options?: { silent?: boolean }): RestfulBookerHelper {
+export function createRestfulBookerHelper(options?: {
+  silent?: boolean;
+}): RestfulBookerHelper {
   return new RestfulBookerHelper(options);
 }

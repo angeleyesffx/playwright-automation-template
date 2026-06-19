@@ -1,5 +1,5 @@
-import { APIRequestContext, request } from '@playwright/test';
-import { logger } from './logger';
+import { APIRequestContext, request } from "@playwright/test";
+import { logger } from "./logger";
 
 export interface MarvelAppOptions {
   token?: string;
@@ -33,14 +33,14 @@ export interface GraphQLResponse<T> {
 export class MarvelApiHelper {
   private apiContext: APIRequestContext | null = null;
   private readonly token: string;
-  readonly baseUrl = 'https://api.marvelapp.com';
+  readonly baseUrl = "https://api.marvelapp.com";
 
   constructor(options: MarvelAppOptions = {}) {
-    this.token = options.token ?? process.env.MARVEL_TOKEN ?? '';
+    this.token = options.token ?? process.env.MARVEL_TOKEN ?? "";
 
     if (!this.token) {
       throw new Error(
-        'Marvel App token required. Set MARVEL_TOKEN in config/.env — generate one at https://marvelapp.com/oauth/devtoken'
+        "Marvel App token required. Set MARVEL_TOKEN in config/.env — generate one at https://marvelapp.com/oauth/devtoken",
       );
     }
 
@@ -52,8 +52,8 @@ export class MarvelApiHelper {
   private get headers(): Record<string, string> {
     return {
       Authorization: `Bearer ${this.token}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
     };
   }
 
@@ -65,23 +65,30 @@ export class MarvelApiHelper {
     });
   }
 
-  async query<T>(gql: string, variables: Record<string, unknown> = {}): Promise<T> {
+  async query<T>(
+    gql: string,
+    variables: Record<string, unknown> = {},
+  ): Promise<T> {
     if (!this.apiContext) await this.init();
 
-    logger.debug('Marvel GraphQL query', { query: gql.slice(0, 80) });
+    logger.debug("Marvel GraphQL query", { query: gql.slice(0, 80) });
 
-    const response = await this.apiContext!.post('/graphql', {
+    const response = await this.apiContext!.post("/graphql", {
       data: { query: gql, variables },
     });
 
     const body: GraphQLResponse<T> = await response.json();
 
     if (body.errors?.length) {
-      throw new Error(`GraphQL error: ${body.errors.map((e) => e.message).join(', ')}`);
+      throw new Error(
+        `GraphQL error: ${body.errors.map((e) => e.message).join(", ")}`,
+      );
     }
 
     if (!response.ok()) {
-      throw new Error(`Marvel API ${response.status()}: ${JSON.stringify(body)}`);
+      throw new Error(
+        `Marvel API ${response.status()}: ${JSON.stringify(body)}`,
+      );
     }
 
     return body.data as T;
@@ -117,7 +124,7 @@ export class MarvelApiHelper {
         }
       }
     `,
-      { limit }
+      { limit },
     );
     return data.projects.edges.map((e) => e.node);
   }
@@ -137,6 +144,8 @@ export class MarvelApiHelper {
   }
 }
 
-export function createMarvelApiHelper(options?: MarvelAppOptions): MarvelApiHelper {
+export function createMarvelApiHelper(
+  options?: MarvelAppOptions,
+): MarvelApiHelper {
   return new MarvelApiHelper(options);
 }
