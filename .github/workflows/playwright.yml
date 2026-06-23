@@ -153,9 +153,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: code-quality
-    # Cross-browser runs on push to main and manual triggers (workflow_dispatch).
-    # Skipped on pull_request events to keep PR feedback fast.
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout
